@@ -12,6 +12,7 @@ Loading the data
 library(tidyverse)
 library(p8105.datasets)
 library(dplyr)
+library(ggridges)
 
 data("instacart")
 
@@ -21,8 +22,74 @@ Describing the data
 
 The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. The data is structured such that each row is a product from an order, and there is one order per user of the Instacart Online Grocery Shopping service. Key variables include order_id (order identifier), product_id (product identifier), product_name, and aisle. [What does it mean, give an illustrative example of observations]?
 
-There are `r sum(pull(instacart, aisle_id))` total aisles, and `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. 
+There are `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. 
 
 
+```{r plot with number of items per aisle}
+instacart %>%
+  group_by(aisle) %>%
+  summarize(n= n()) %>%
+  filter(n > 10000) %>%
+  ggplot(aes(x = n, y = aisle)) + geom_point(alpha = 0.5) + labs(title = "Number of Items per Aisle, Items > 10,000", x = "Number of Items Ordered", y = "Aisle Name")
+
+```
+
+
+```{r table with 3 most popular items}
+baking_ingredients =
+instacart %>%
+  filter(aisle== "baking ingredients") %>%
+  group_by(aisle, product_name) %>%
+  summarize(n=n()) %>%
+  arrange(desc(n)) %>%
+  head(3)
+  
+
+dog_food_care =
+  instacart %>%
+  filter(aisle == "dog food care") %>%
+  group_by(aisle, product_name) %>%
+  summarize(n=n()) %>%
+  arrange(desc(n)) %>%
+  head(3)
+
+packaged_vegetables_fruits =
+  instacart %>%
+  filter(aisle == "packaged vegetables fruits") %>%
+  group_by(aisle, product_name) %>%
+  summarize(n=n()) %>%
+  arrange(desc(n)) %>%
+  head(3)
+         
+rbind(baking_ingredients, dog_food_care, packaged_vegetables_fruits)
+
+ 
+```
+
+```{r}
+
+
+```
+
+
+#Problem 2
+
+#how to include only one response from excellent to poor? which response..
+```{r}
+data("brfss_smart2010")
+
+summary(brfss_smart2010)
+
+
+brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  count(topic)
+
+brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  filter(topic == "Overall Health") %>%
+  count(response)
+
+```
 
 
