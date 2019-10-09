@@ -1,0 +1,28 @@
+---
+title: "HW3"
+author: "Maya Spaur"
+date: "10/9/2019"
+output: github_document
+---
+
+#Problem 1
+Loading the data
+
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+library(dplyr)
+
+data("instacart")
+
+```
+
+Describing the data
+
+The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. The data is structured such that each row is a product from an order, and there is one order per user of the Instacart Online Grocery Shopping service. Key variables include order_id (order identifier), product_id (product identifier), product_name, and aisle. [What does it mean, give an illustrative example of observations]?
+
+There are `r sum(pull(instacart, aisle_id))` total aisles, and `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. 
+
+
+
+
