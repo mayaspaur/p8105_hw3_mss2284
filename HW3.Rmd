@@ -41,8 +41,7 @@ Number_of_items =
   group_by(aisle) %>%
   summarize(n= n()) %>%
   filter(n > 10000) %>%
-  ggplot(aes(x = n, y = aisle)) + geom_point(alpha = 0.5) + labs(title = "Number of Items per Aisle, Items > 10,000", x = "Number of Items Ordered", y = "Aisle Name")
-
+  ggplot(aes(x = aisle, y = n)) + geom_col() + theme(axis.text.x = element_text(angle = 90)) + labs(x = "Aisle", y = "Number of Items Ordered", title = "Number of Items Ordered from Aisle")
 
 Number_of_items
 
@@ -190,14 +189,17 @@ accelerometer_data =
  pivot_longer(
     activity_1:activity_1440,
     names_to = "minutes",
+    names_prefix ="activity_",
     values_to = "activity_counts"
   ) %>%
     mutate(
     weekend = if_else(day == "Saturday" | day == "Sunday", "weekend", "weekday")
     ) %>%
   mutate(
-    minutes = as.factor(minutes)
+    minutes = as.integer(minutes)
   )
+
+accelerometer_data
 
 accelerometer_data2 =
 accelerometer_data %>%
@@ -209,16 +211,28 @@ accelerometer_data2
 
 ```
 
-The `accelerometer_data`day dataset has 1443 variables and 35 observations. Key variables include week and day.
+The `accelerometer_data`day dataset has [DESCRIBE THE RESULTING DATASEST], 1443 variables and 35 observations. Key variables include week and day.
 
 
 Making a plot
-
+#How to get this plot to work correctly
 ```{r}
-accelerometer_plot =
+accelerometer_data3 =
 accelerometer_data %>%
-  ggplot(aes(x = minutes, y = activity_counts, color = day)) + geom_line()
+  mutate(
+    hour = minutes %/% 60,
+    hour = as.integer(hour),
+    unique_day = paste(week, day)
+  ) %>%
+  group_by(unique_day, hour) %>%
+  summarize(mean_activity_counts = mean(activity_counts))
+
+accelerometer_plot =
+accelerometer_data3 %>%
+  ggplot(aes(x = hour, y = mean_activity_counts, color = unique_day)) + geom_line()
 
 accelerometer_plot
+
+   
 ```
 
