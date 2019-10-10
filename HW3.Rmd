@@ -11,27 +11,40 @@ Loading the data
 ```{r}
 library(tidyverse)
 library(p8105.datasets)
-library(dplyr)
-library(ggridges)
+library(viridis)
 
 data("instacart")
+
+
+
+instacart %>%
+  group_by(aisle) %>%
+  summarize(n= n()) %>%
+  mutate(aisle_rank = rank(desc(n))) %>%
+  filter(aisle_rank <=3)
 
 ```
 
 Describing the data
 
-The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. The data is structured such that each row is a product from an order, and there is one order per user of the Instacart Online Grocery Shopping service. Key variables include order_id (order identifier), product_id (product identifier), product_name, and aisle. [What does it mean, give an illustrative example of observations]?
+The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. The data is structured such that each row is a product from an order, and there is one order per user of the Instacart Online Grocery Shopping service. Key variables include order_id (order identifier), product_id (product identifier), product_name, and aisle. [What does it mean, give an illustrative example of observations --> give example of first item in table]?
 
-There are `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. 
+There are `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. The three most populare are fresh fruits, fresh vegetables, and packaged vegetables fruits. 
+
+
 
 Plot with Number of Items per Aisle
 
 ```{r plot with number of items per aisle}
-instacart %>%
+Number_of_items = 
+  instacart %>%
   group_by(aisle) %>%
   summarize(n= n()) %>%
   filter(n > 10000) %>%
   ggplot(aes(x = n, y = aisle)) + geom_point(alpha = 0.5) + labs(title = "Number of Items per Aisle, Items > 10,000", x = "Number of Items Ordered", y = "Aisle Name")
+
+
+Number_of_items
 
 ```
 
@@ -63,31 +76,32 @@ packaged_vegetables_fruits =
   arrange(desc(n)) %>%
   head(3)
          
-rbind(baking_ingredients, dog_food_care, packaged_vegetables_fruits) %>%   knitr::kable()
+binded_table = 
+  rbind(baking_ingredients, dog_food_care, packaged_vegetables_fruits) %>%   knitr::kable()
 
+
+binded_table
 ```
 
 Time of Pink Lady Apples and Coffee Ice Cream Orders
-#How to make just 2 rows
+
 ```{r time of Pink Lady Apples and Coffee Ice Cream}
 instacart %>%
   janitor::clean_names() %>%
   filter(product_name == "Pink Lady Apples"| product_name == "Coffee Ice Cream") %>%
-  drop_na(order_hour_of_day) %>%
-  group_by(order_dow) %>%
-  mutate(
+  group_by(order_dow, product_name) %>%
+  summarize(
     mean_hour = mean(order_hour_of_day)
   ) %>%
   pivot_wider(
     names_from = "order_dow",
     values_from = "mean_hour"
   ) %>%
-  select(product_name, "0", "1", "2", "3", "4", "5", "6") %>%
-   knitr::kable()
-
+   knitr::kable(digits = 2)
 
 ```
 
+COMMENTING ON THE RESULTS OF EACH ...
 
 #Problem 2
 
@@ -96,25 +110,39 @@ Data Cleaning
 ```{r data cleaning}
 data("brfss_smart2010")
 
-brfss_smart2010 %>%
+brfss_smart2010 = 
+  brfss_smart2010 %>%
   janitor::clean_names() %>%
-  filter(topic == "Overall Health", response %in% c("Excellent", "Very Good", "Good", "Fair", "Poor")) %>%
+  filter(topic == "Overall Health", response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")) %>%
   mutate(
-    response = as.factor(response)
-  ) %>%
-  arrange(desc(response))
+    response = as.factor(response),
+    response = forcats::fct_relevel(response, c("Poor", "Fair", "Good", "Very good", "Excellent")))
+  
 
 ```
 
 Answering questions 
-#how to list these in a sentence? just manually copy them over? how to get the state back?
-```{r 2002 and 2007 states observed over 7 locations}
-summary(brfss_smart2010)
 
+```{r 2002 and 2007 states observed over 7 locations}
+
+brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  filter(year == "2002") %>%
+  group_by(locationabbr) %>%
+  summarize(unique_location = length(unique(locationdesc))) %>%
+              filter(unique_location >= 7)
+           
+  
+brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  filter(year == "2010") %>%
+  group_by(locationabbr) %>%
+  summarize(unique_location = length(unique(locationdesc))) %>%
+              filter(unique_location >= 7)
   
 ```
 
-In 2002 ... In 2007 ...
+In 2002 there are 6 locations and in 2010 there are 14 locations.
 
 Spaghetti Plot
 
@@ -124,12 +152,12 @@ spaghetti_plot =
   brfss_smart2010 %>%
   janitor::clean_names() %>%
   filter(response == "Excellent") %>%
-  group_by(locationabbr) %>%
-  mutate(
+  group_by(locationabbr, year) %>%
+  summarize(
     avg_data_value = mean(data_value)
   ) %>%
   select(year, locationabbr, avg_data_value) %>%
-  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_point() + geom_line() + theme(legend.position = "bottom")
+  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + theme(legend.position = "bottom") + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value")
 
 spaghetti_plot
 
@@ -141,17 +169,56 @@ spaghetti_plot
 Two_panel_plot =
 brfss_smart2010 %>%
   janitor::clean_names() %>%
-  filter(year== "2006" | year=="2010") %>%
-  filter(topic == "Overall Health", response %in% c("Excellent", "Very Good", "Good", "Fair", "Poor")) %>%
-  mutate(
-    response = as.factor(response)
-  ) %>%
-  arrange(desc(response)) %>%
-  filter(locationabbr =="NY")%>%
- ggplot(aes(x = response, y = data_value)) + geom_point() + geom_line()+ facet_grid(~year)
+  filter(year== "2006" | year=="2010", locationabbr =="NY") %>%
+  filter(topic == "Overall Health", response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")) %>%
+ ggplot(aes(x = response, y = data_value)) + geom_col() + facet_grid(~year)
 
 
 Two_panel_plot
   
+```
+
+
+#Problem 3 How to make weekday and weekend variable?
+
+Loading and tidying the data 
+
+```{r problem 3 part 1}
+accelerometer_data =
+ read_csv("./accel_data.csv") %>%
+  janitor::clean_names() %>%
+ pivot_longer(
+    activity_1:activity_1440,
+    names_to = "minutes",
+    values_to = "activity_counts"
+  ) %>%
+    mutate(
+    weekend = if_else(day == "Saturday" | day == "Sunday", "weekend", "weekday")
+    ) %>%
+  mutate(
+    minutes = as.factor(minutes)
+  )
+
+accelerometer_data2 =
+accelerometer_data %>%
+    group_by(day_id) %>%
+  summarize(
+    total_activity = sum(activity_counts))
+  
+accelerometer_data2
+
+```
+
+The `accelerometer_data`day dataset has 1443 variables and 35 observations. Key variables include week and day.
+
+
+Making a plot
+
+```{r}
+accelerometer_plot =
+accelerometer_data %>%
+  ggplot(aes(x = minutes, y = activity_counts, color = day)) + geom_line()
+
+accelerometer_plot
 ```
 
