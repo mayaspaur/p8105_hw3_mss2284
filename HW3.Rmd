@@ -24,6 +24,7 @@ The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. T
 
 There are `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. 
 
+Plot with Number of Items per Aisle
 
 ```{r plot with number of items per aisle}
 instacart %>%
@@ -34,6 +35,7 @@ instacart %>%
 
 ```
 
+Table with 3 Most Popular Items
 
 ```{r table with 3 most popular items}
 baking_ingredients =
@@ -61,12 +63,27 @@ packaged_vegetables_fruits =
   arrange(desc(n)) %>%
   head(3)
          
-rbind(baking_ingredients, dog_food_care, packaged_vegetables_fruits)
+rbind(baking_ingredients, dog_food_care, packaged_vegetables_fruits) %>%   knitr::kable()
 
- 
 ```
 
-```{r}
+Time of Pink Lady Apples and Coffee Ice Cream Orders
+#How to make just 2 rows
+```{r time of Pink Lady Apples and Coffee Ice Cream}
+instacart %>%
+  janitor::clean_names() %>%
+  filter(product_name == "Pink Lady Apples"| product_name == "Coffee Ice Cream") %>%
+  drop_na(order_hour_of_day) %>%
+  group_by(order_dow) %>%
+  mutate(
+    mean_hour = mean(order_hour_of_day)
+  ) %>%
+  pivot_wider(
+    names_from = "order_dow",
+    values_from = "mean_hour"
+  ) %>%
+  select(product_name, "0", "1", "2", "3", "4", "5", "6") %>%
+   knitr::kable()
 
 
 ```
@@ -74,22 +91,67 @@ rbind(baking_ingredients, dog_food_care, packaged_vegetables_fruits)
 
 #Problem 2
 
-#how to include only one response from excellent to poor? which response..
-```{r}
+Data Cleaning
+
+```{r data cleaning}
 data("brfss_smart2010")
 
-summary(brfss_smart2010)
-
-
 brfss_smart2010 %>%
   janitor::clean_names() %>%
-  count(topic)
-
-brfss_smart2010 %>%
-  janitor::clean_names() %>%
-  filter(topic == "Overall Health") %>%
-  count(response)
+  filter(topic == "Overall Health", response %in% c("Excellent", "Very Good", "Good", "Fair", "Poor")) %>%
+  mutate(
+    response = as.factor(response)
+  ) %>%
+  arrange(desc(response))
 
 ```
 
+Answering questions 
+#how to list these in a sentence? just manually copy them over? how to get the state back?
+```{r 2002 and 2007 states observed over 7 locations}
+summary(brfss_smart2010)
+
+  
+```
+
+In 2002 ... In 2007 ...
+
+Spaghetti Plot
+
+
+```{r}
+spaghetti_plot = 
+  brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  filter(response == "Excellent") %>%
+  group_by(locationabbr) %>%
+  mutate(
+    avg_data_value = mean(data_value)
+  ) %>%
+  select(year, locationabbr, avg_data_value) %>%
+  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_point() + geom_line() + theme(legend.position = "bottom")
+
+spaghetti_plot
+
+```
+
+2 Panel Plot
+
+```{r}
+Two_panel_plot =
+brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  filter(year== "2006" | year=="2010") %>%
+  filter(topic == "Overall Health", response %in% c("Excellent", "Very Good", "Good", "Fair", "Poor")) %>%
+  mutate(
+    response = as.factor(response)
+  ) %>%
+  arrange(desc(response)) %>%
+  filter(locationabbr =="NY")%>%
+ ggplot(aes(x = response, y = data_value)) + geom_point() + geom_line()+ facet_grid(~year)
+
+
+Two_panel_plot
+  
+```
 
