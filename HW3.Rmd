@@ -13,6 +13,16 @@ library(tidyverse)
 library(p8105.datasets)
 library(viridis)
 
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+
+
+
 data("instacart")
 
 
@@ -82,6 +92,9 @@ binded_table =
 binded_table
 ```
 
+The most popular items in the aisle for baking_ingredients were light brown sugar, pure baking soda, and cane sugar. For the dog food care aisle, the most popular items were snack sticks, organix chicken, and small dog biscuits. In the packaged vegetables and fruits aisle, the most popular items were organic baby spianch, organic raspberries, and organic blueberries.
+
+
 Time of Pink Lady Apples and Coffee Ice Cream Orders
 
 ```{r time of Pink Lady Apples and Coffee Ice Cream}
@@ -100,7 +113,7 @@ instacart %>%
 
 ```
 
-COMMENTING ON THE RESULTS OF EACH ...
+In comparing times of orders of Pink Lady Apples and Coffee Ice Cream, averaged across hours of the day, Pink Lady Apples had consistently fewer orders than Coffee Ice Cream for each day of the week.
 
 #Problem 2
 
@@ -139,9 +152,10 @@ brfss_smart2010 %>%
   summarize(unique_location = length(unique(locationdesc))) %>%
               filter(unique_location >= 7)
   
+  
 ```
 
-In 2002 there are 6 locations and in 2010 there are 14 locations.
+In 2002, 6 states (CT, FL, MA, NC, NJ and PA) were observed at 7 or more locations. In 2010, 14 states (CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX and WA) were observed at over 7 or more locations.
 
 Spaghetti Plot
 
@@ -156,7 +170,12 @@ spaghetti_plot =
     avg_data_value = mean(data_value)
   ) %>%
   select(year, locationabbr, avg_data_value) %>%
-  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + theme(legend.position = "bottom") + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value")
+  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value") %>%
+  knitr::opts_chunk$set(
+  fig.height = 20,
+  fig.width = 6,
+  fig.asp = .6
+)
 
 spaghetti_plot
 
@@ -170,7 +189,7 @@ brfss_smart2010 %>%
   janitor::clean_names() %>%
   filter(year== "2006" | year=="2010", locationabbr =="NY") %>%
   filter(topic == "Overall Health", response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")) %>%
- ggplot(aes(x = response, y = data_value)) + geom_col() + facet_grid(~year)
+ ggplot(aes(x = response, y = data_value)) + geom_col() + facet_grid(~year) + labs(title = "Poor to Excellent Responses in NY State", x = "Response", Y = "Data Value")
 
 
 Two_panel_plot
@@ -178,7 +197,7 @@ Two_panel_plot
 ```
 
 
-#Problem 3 How to make weekday and weekend variable?
+#Problem 3
 
 Loading and tidying the data 
 
@@ -201,22 +220,33 @@ accelerometer_data =
 
 accelerometer_data
 
+
+```
+
+The `accelerometer_data` dataset has 50,400 observations and 6 variables. Data was collected on a male 63-year old patient disgnosed with congestive heart failure and admitted to the Advanced Cardiac Care Center of Columbia University Medical Center. Key variables include day_id (one day_id corresponding to each of the 35 days of data collection), day (day of the week), minutes, activity_counts (total activity for each minute of the day), and weekend (coded as weekend for Saturday and Sunday, and weekday for Monday - Friday).
+
+Total Activity of the Day
+
+```{r}
+
 accelerometer_data2 =
 accelerometer_data %>%
     group_by(day_id) %>%
   summarize(
     total_activity = sum(activity_counts))
+
   
-accelerometer_data2
+accelerometer_data2 %>% knitr::kable()
+
 
 ```
 
-The `accelerometer_data`day dataset has [DESCRIBE THE RESULTING DATASEST], 1443 variables and 35 observations. Key variables include week and day.
+Total activity was shown to vary over day_id. Levels seemed to stabilize for a few days at a time, then would drop or increase drastically.
 
+Plots for Activity Counts
 
-Making a plot
-#How to get this plot to work correctly
-```{r}
+Mean Activity Count for each Unique Day
+```{r mean activity counts over each unique day}
 accelerometer_data3 =
 accelerometer_data %>%
   mutate(
@@ -233,6 +263,55 @@ accelerometer_data3 %>%
 
 accelerometer_plot
 
+```
+
+Mean Activity County for each day of the week for all 35 days over 5 weeks demonstrate the variability in accelerometer activity counts. Broad trends include peaks after hour 5, after hour 10, and after hour 15. The highest peaks were observed at hour 20 for all days.
+
+```{r mean activity counts over each day of the week}
+
+accelerometer_data4=
+accelerometer_data %>%
+  mutate(
+    hour = minutes %/% 60,
+    hour = as.integer(hour),
+  ) %>%
+  group_by(day, hour) %>%
+  summarize(mean_activity_counts = mean(activity_counts))
+
+accelerometer_data4
+
+accelerometer_plot2 =
+accelerometer_data4 %>%
+  ggplot(aes(x = hour, y = mean_activity_counts, color = day)) + geom_line()
+
+accelerometer_plot2
+
    
 ```
 
+Based on the plot above, mean activity counts for all days of the week tend to increase from hour 5 to hour 10 or 11. Mean activity counts sharpy increased around hour 20 and then sharply decreased, with mean activity counts tending to be lowest from hour 22 to hour 4.
+
+Mean Activity Count for Tuesday
+
+```{r}
+accelerometer_data5=
+accelerometer_data %>%
+  mutate(
+    hour = minutes %/% 60,
+    hour = as.integer(hour),
+  ) %>%
+  group_by(day, hour) %>%
+  summarize(mean_activity_counts = mean(activity_counts)) %>%
+  filter(day == "Tuesday")
+
+accelerometer_data5
+
+accelerometer_plot3 =
+accelerometer_data5 %>%
+  ggplot(aes(x = hour, y = mean_activity_counts, color = day)) + geom_line()
+
+accelerometer_plot3
+
+```
+
+Based on the group of mean activity per hour on Tuesday, average actvity increased steadily from approximately hour 5 to hour 7, remained relatively high from hour 11 to hour 19, and sharply decreased to hour 24.
