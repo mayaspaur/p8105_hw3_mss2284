@@ -13,12 +13,6 @@ library(tidyverse)
 library(p8105.datasets)
 library(viridis)
 
-knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
-)
-
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 
 
@@ -170,12 +164,7 @@ spaghetti_plot =
     avg_data_value = mean(data_value)
   ) %>%
   select(year, locationabbr, avg_data_value) %>%
-  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value") %>%
-  knitr::opts_chunk$set(
-  fig.height = 20,
-  fig.width = 6,
-  fig.asp = .6
-)
+  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value") 
 
 spaghetti_plot
 
@@ -265,7 +254,7 @@ accelerometer_plot
 
 ```
 
-Mean Activity County for each day of the week for all 35 days over 5 weeks demonstrate the variability in accelerometer activity counts. Broad trends include peaks after hour 5, after hour 10, and after hour 15. The highest peaks were observed at hour 20 for all days.
+Mean Activity County for each day of the week for all 35 days over 5 weeks demonstrate the variability in accelerometer activity counts. Broad trends include higher levels of activity from about hour 7 to hour 21, reflecting relatively normal waking hours.
 
 ```{r mean activity counts over each day of the week}
 
@@ -289,29 +278,31 @@ accelerometer_plot2
    
 ```
 
-Based on the plot above, mean activity counts for all days of the week tend to increase from hour 5 to hour 10 or 11. Mean activity counts sharpy increased around hour 20 and then sharply decreased, with mean activity counts tending to be lowest from hour 22 to hour 4.
+Based on the plot above, mean activity counts for all days of the week tend to increase from hour 5 to hour 10 or 10 and remain relatively active during typical waking hours, until hour 20. Mean activity counts tended to be lowest from hour 22 to hour 5, indicating sleeping.
 
 Mean Activity Count for Tuesday
 
 ```{r}
 accelerometer_data5=
 accelerometer_data %>%
+  filter(day == "Tuesday") %>%
   mutate(
     hour = minutes %/% 60,
     hour = as.integer(hour),
+    unique_day = paste(week, day)
   ) %>%
-  group_by(day, hour) %>%
-  summarize(mean_activity_counts = mean(activity_counts)) %>%
-  filter(day == "Tuesday")
+  group_by(unique_day, hour) %>%
+  summarize(mean_activity_counts = mean(activity_counts))
+  
 
 accelerometer_data5
 
 accelerometer_plot3 =
 accelerometer_data5 %>%
-  ggplot(aes(x = hour, y = mean_activity_counts, color = day)) + geom_line()
+  ggplot(aes(x = hour, y = mean_activity_counts, color = unique_day)) + geom_line()
 
 accelerometer_plot3
 
 ```
 
-Based on the group of mean activity per hour on Tuesday, average actvity increased steadily from approximately hour 5 to hour 7, remained relatively high from hour 11 to hour 19, and sharply decreased to hour 24.
+Based on the graph of mean activity counts per hour on Tuesday, average actvity increased steadily from approximately hour 5 to hour 7, remained relatively active from hour 8 to hour 20 (daytime hours, with an exception for Tuesday of week 3), and decreased to hour 24. 
