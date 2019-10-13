@@ -10,14 +10,14 @@ Maya Spaur
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ------------------------------------------------------- tidyverse 1.2.1 --
+    ## -- Attaching packages ----------------------------------------------------------------------------- tidyverse 1.2.1 --
 
     ## v ggplot2 3.2.1     v purrr   0.3.2
     ## v tibble  2.1.3     v dplyr   0.8.3
     ## v tidyr   1.0.0     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.4.0
 
-    ## -- Conflicts ---------------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts -------------------------------------------------------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -29,12 +29,6 @@ library(viridis)
     ## Loading required package: viridisLite
 
 ``` r
-knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
-)
-
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 
 
@@ -83,7 +77,7 @@ Number_of_items =
 Number_of_items
 ```
 
-<img src="HW3_files/figure-gfm/plot with number of items per aisle-1.png" width="90%" />
+![](HW3_files/figure-gfm/plot%20with%20number%20of%20items%20per%20aisle-1.png)<!-- -->
 
 Table with 3 Most Popular Items
 
@@ -245,19 +239,14 @@ spaghetti_plot =
     avg_data_value = mean(data_value)
   ) %>%
   select(year, locationabbr, avg_data_value) %>%
-  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value") %>%
-  knitr::opts_chunk$set(
-  fig.height = 20,
-  fig.width = 6,
-  fig.asp = .6
-)
+  ggplot(aes(x = year, y = avg_data_value, group = locationabbr, color = locationabbr)) + geom_line() + labs(title = "Excellent Responses in US States", x = "Year", Y = "Avg Data Value") 
 
 spaghetti_plot
 ```
 
     ## Warning: Removed 3 rows containing missing values (geom_path).
 
-<img src="HW3_files/figure-gfm/unnamed-chunk-2-1.png" width="90%" />
+![](HW3_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 2 Panel Plot
 
@@ -273,7 +262,7 @@ brfss_smart2010 %>%
 Two_panel_plot
 ```
 
-<img src="HW3_files/figure-gfm/unnamed-chunk-3-1.png" width="90%" />
+![](HW3_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 \#Problem 3
 
@@ -410,12 +399,12 @@ accelerometer_data3 %>%
 accelerometer_plot
 ```
 
-<img src="HW3_files/figure-gfm/mean activity counts over each unique day-1.png" width="90%" />
+![](HW3_files/figure-gfm/mean%20activity%20counts%20over%20each%20unique%20day-1.png)<!-- -->
 
 Mean Activity County for each day of the week for all 35 days over 5
 weeks demonstrate the variability in accelerometer activity counts.
-Broad trends include peaks after hour 5, after hour 10, and after hour
-15. The highest peaks were observed at hour 20 for all days.
+Broad trends include higher levels of activity from about hour 7 to hour
+21, reflecting relatively normal waking hours.
 
 ``` r
 accelerometer_data4=
@@ -454,56 +443,58 @@ accelerometer_data4 %>%
 accelerometer_plot2
 ```
 
-<img src="HW3_files/figure-gfm/mean activity counts over each day of the week-1.png" width="90%" />
+![](HW3_files/figure-gfm/mean%20activity%20counts%20over%20each%20day%20of%20the%20week-1.png)<!-- -->
 
 Based on the plot above, mean activity counts for all days of the week
-tend to increase from hour 5 to hour 10 or 11. Mean activity counts
-sharpy increased around hour 20 and then sharply decreased, with mean
-activity counts tending to be lowest from hour 22 to hour 4.
+tend to increase from hour 5 to hour 10 or 10 and remain relatively
+active during typical waking hours, until hour 20. Mean activity counts
+tended to be lowest from hour 22 to hour 5, indicating sleeping.
 
 Mean Activity Count for Tuesday
 
 ``` r
 accelerometer_data5=
 accelerometer_data %>%
+  filter(day == "Tuesday") %>%
   mutate(
     hour = minutes %/% 60,
     hour = as.integer(hour),
+    unique_day = paste(week, day)
   ) %>%
-  group_by(day, hour) %>%
-  summarize(mean_activity_counts = mean(activity_counts)) %>%
-  filter(day == "Tuesday")
+  group_by(unique_day, hour) %>%
+  summarize(mean_activity_counts = mean(activity_counts))
+  
 
 accelerometer_data5
 ```
 
-    ## # A tibble: 25 x 3
-    ## # Groups:   day [1]
-    ##    day      hour mean_activity_counts
-    ##    <chr>   <int>                <dbl>
-    ##  1 Tuesday     0                 15.0
-    ##  2 Tuesday     1                 27.4
-    ##  3 Tuesday     2                 65.1
-    ##  4 Tuesday     3                 28.1
-    ##  5 Tuesday     4                 27.0
-    ##  6 Tuesday     5                 75.8
-    ##  7 Tuesday     6                283. 
-    ##  8 Tuesday     7                460. 
-    ##  9 Tuesday     8                355. 
-    ## 10 Tuesday     9                305. 
-    ## # ... with 15 more rows
+    ## # A tibble: 125 x 3
+    ## # Groups:   unique_day [5]
+    ##    unique_day  hour mean_activity_counts
+    ##    <chr>      <int>                <dbl>
+    ##  1 1 Tuesday      0                 46.1
+    ##  2 1 Tuesday      1                 29.6
+    ##  3 1 Tuesday      2                 34.9
+    ##  4 1 Tuesday      3                 51.3
+    ##  5 1 Tuesday      4                 69.3
+    ##  6 1 Tuesday      5                104. 
+    ##  7 1 Tuesday      6                122. 
+    ##  8 1 Tuesday      7                166. 
+    ##  9 1 Tuesday      8                299. 
+    ## 10 1 Tuesday      9                303. 
+    ## # ... with 115 more rows
 
 ``` r
 accelerometer_plot3 =
 accelerometer_data5 %>%
-  ggplot(aes(x = hour, y = mean_activity_counts, color = day)) + geom_line()
+  ggplot(aes(x = hour, y = mean_activity_counts, color = unique_day)) + geom_line()
 
 accelerometer_plot3
 ```
 
-<img src="HW3_files/figure-gfm/unnamed-chunk-5-1.png" width="90%" />
+![](HW3_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
-Based on the group of mean activity per hour on Tuesday, average actvity
-increased steadily from approximately hour 5 to hour 7, remained
-relatively high from hour 11 to hour 19, and sharply decreased to hour
-24.
+Based on the graph of mean activity counts per hour on Tuesday, average
+actvity increased steadily from approximately hour 5 to hour 7, remained
+relatively active from hour 8 to hour 20 (daytime hours, with an
+exception for Tuesday of week 3), and decreased to hour 24.
