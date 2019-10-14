@@ -19,6 +19,7 @@ theme_set(theme_bw() + theme(legend.position = "bottom"))
 
 data("instacart")
 
+instacart
 
 
 instacart %>%
@@ -31,7 +32,7 @@ instacart %>%
 
 Describing the data
 
-The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. The data is structured such that each row is a product from an order, and there is one order per user of the Instacart Online Grocery Shopping service. Key variables include order_id (order identifier), product_id (product identifier), product_name, and aisle. [What does it mean, give an illustrative example of observations --> give example of first item in table]?
+The `Instacart` dataset has `r nrow(instacart)` observations and 15 variables. The data is structured such that each row is a product from an order, and there is one order per user of the Instacart Online Grocery Shopping service. Key variables include order_id (order identifier), product_id (product identifier), product_name, and aisle. For example, the first row of the table contains the product named Bulgarian Yogurt, which is located in the Yogurt Aisle in the Dairy Eggs department. This product is further identified by the order number, the day of the week (order_dow) and the hour of the day (order_hour_of_day) on which it was ordered, and the user id.
 
 There are `r n_distinct(pull(instacart, aisle_id))` unique types of aisles. The three most populare are fresh fruits, fresh vegetables, and packaged vegetables fruits. 
 
