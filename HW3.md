@@ -3,21 +3,23 @@ HW3
 Maya Spaur
 10/9/2019
 
-\#Problem 1 Loading the
-    data
+\#Problem
+    1
+
+Setup
 
 ``` r
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ----------------------------------------------------------------------------- tidyverse 1.2.1 --
+    ## -- Attaching packages --------------------------------- tidyverse 1.2.1 --
 
     ## v ggplot2 3.2.1     v purrr   0.3.2
     ## v tibble  2.1.3     v dplyr   0.8.3
     ## v tidyr   1.0.0     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.4.0
 
-    ## -- Conflicts -------------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts ------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -30,12 +32,12 @@ library(viridis)
 
 ``` r
 theme_set(theme_bw() + theme(legend.position = "bottom"))
+```
 
+Loading the data
 
-
+``` r
 data("instacart")
-
-
 
 instacart %>%
   group_by(aisle) %>%
@@ -57,9 +59,12 @@ The `Instacart` dataset has 1384617 observations and 15 variables. The
 data is structured such that each row is a product from an order, and
 there is one order per user of the Instacart Online Grocery Shopping
 service. Key variables include order\_id (order identifier), product\_id
-(product identifier), product\_name, and aisle. \[What does it mean,
-give an illustrative example of observations –\> give example of first
-item in table\]?
+(product identifier), product\_name, and aisle. For example, the first
+row of the table contains the product named Bulgarian Yogurt, which is
+located in the Yogurt Aisle in the Dairy Eggs department. This product
+is further identified by the order number, the day of the week
+(order\_dow) and the hour of the day (order\_hour\_of\_day) on which it
+was ordered, and the user id.
 
 There are 134 unique types of aisles. The three most populare are fresh
 fruits, fresh vegetables, and packaged vegetables fruits.
@@ -246,7 +251,7 @@ spaghetti_plot
 
     ## Warning: Removed 3 rows containing missing values (geom_path).
 
-![](HW3_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](HW3_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 2 Panel Plot
 
@@ -262,7 +267,7 @@ brfss_smart2010 %>%
 Two_panel_plot
 ```
 
-![](HW3_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](HW3_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 \#Problem 3
 
@@ -416,26 +421,7 @@ accelerometer_data %>%
   group_by(day, hour) %>%
   summarize(mean_activity_counts = mean(activity_counts))
 
-accelerometer_data4
-```
 
-    ## # A tibble: 175 x 3
-    ## # Groups:   day [7]
-    ##    day     hour mean_activity_counts
-    ##    <chr>  <int>                <dbl>
-    ##  1 Friday     0                 38.1
-    ##  2 Friday     1                 25.0
-    ##  3 Friday     2                 17.9
-    ##  4 Friday     3                 37.3
-    ##  5 Friday     4                 92.0
-    ##  6 Friday     5                120. 
-    ##  7 Friday     6                206. 
-    ##  8 Friday     7                350. 
-    ##  9 Friday     8                350. 
-    ## 10 Friday     9                430. 
-    ## # ... with 165 more rows
-
-``` r
 accelerometer_plot2 =
 accelerometer_data4 %>%
   ggplot(aes(x = hour, y = mean_activity_counts, color = day)) + geom_line()
@@ -465,26 +451,6 @@ accelerometer_data %>%
   summarize(mean_activity_counts = mean(activity_counts))
   
 
-accelerometer_data5
-```
-
-    ## # A tibble: 125 x 3
-    ## # Groups:   unique_day [5]
-    ##    unique_day  hour mean_activity_counts
-    ##    <chr>      <int>                <dbl>
-    ##  1 1 Tuesday      0                 46.1
-    ##  2 1 Tuesday      1                 29.6
-    ##  3 1 Tuesday      2                 34.9
-    ##  4 1 Tuesday      3                 51.3
-    ##  5 1 Tuesday      4                 69.3
-    ##  6 1 Tuesday      5                104. 
-    ##  7 1 Tuesday      6                122. 
-    ##  8 1 Tuesday      7                166. 
-    ##  9 1 Tuesday      8                299. 
-    ## 10 1 Tuesday      9                303. 
-    ## # ... with 115 more rows
-
-``` r
 accelerometer_plot3 =
 accelerometer_data5 %>%
   ggplot(aes(x = hour, y = mean_activity_counts, color = unique_day)) + geom_line()
@@ -492,7 +458,7 @@ accelerometer_data5 %>%
 accelerometer_plot3
 ```
 
-![](HW3_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](HW3_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 Based on the graph of mean activity counts per hour on Tuesday, average
 actvity increased steadily from approximately hour 5 to hour 7, remained
